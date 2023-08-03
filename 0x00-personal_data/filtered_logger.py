@@ -10,7 +10,7 @@ PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
 
 def filter_datum(fields: List[str], redaction: str, message: str,
-                 separator: str):
+                 separator: str) -> str:
     """function that filters data and hides some"""
     for field in fields:
         message = re.sub(rf"{field}=(.*?)\{separator}",
