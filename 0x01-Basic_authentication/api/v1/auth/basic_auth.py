@@ -2,7 +2,6 @@
 """the basic auth class"""
 from api.v1.auth.auth import Auth
 import base64
-import binascii
 from typing import TypeVar
 from models.user import User
 
@@ -28,7 +27,7 @@ class BasicAuth(Auth):
                 encode = base64_authorization_header.encode('utf-8')
                 base = base64.b64decode(encode)
                 return base.decode('utf-8')
-            except binascii.Error:
+            except Exception:
                 return None
 
     def extract_user_credentials(
@@ -55,3 +54,12 @@ class BasicAuth(Auth):
             if user.is_valid_password(user_pwd):
                 return user
         return None
+
+    def current_user(self, request=None) -> TypeVar('User'):
+        """retrieves the User instance for a request"""
+        auth_header = self.authorization_header(request)
+        encoded = self.extract_base64_authorization_header(auth_header)
+        decoded = self.decode_base64_authorization_header(encoded)
+        email, password = self.extract_user_credentials(decoded)
+        user = self.user_object_from_credentials(email, password)
+        return user
