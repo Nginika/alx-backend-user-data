@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """API authentication class"""
 import flask
+import json
 from flask import request
 from typing import List, TypeVar
 
@@ -22,7 +23,11 @@ class Auth():
 
     def authorization_header(self, request=None) -> str:
         """create header with authorization details"""
-        return None
+        if request is None:
+            return None
+        if 'Authorization' not in request.headers:
+            return None
+        return request.headers.get("Authorization")
 
     def current_user(self, request=None) -> TypeVar('User'):
         """get the current user """
