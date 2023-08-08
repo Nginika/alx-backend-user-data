@@ -23,7 +23,7 @@ if getenv("AUTH_TYPE") == "auth":
 def before_request_callback():
     """before request handler"""
     valid = ['/api/v1/status/', '/api/v1/unauthorized/', '/api/v1/forbidden/']
-    if auth and auth.require_auth(request.path, ex_paths):
+    if auth and auth.require_auth(request.path, valid):
         if auth.authorization_header(request) is None:
             abort(401)
         if auth.current_user(request) is None:
