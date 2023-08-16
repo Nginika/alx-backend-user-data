@@ -2,15 +2,13 @@
 """
 create a sqlalchemy model for db table
 """
-import sqlalchemy
-from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
-engine = create_engine('sqlite:///:memory:', echo=True)
 Base = declarative_base()
 
 
 class User(Base):
+    """User class"""
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     email = Column(String(250), nullable=False)
@@ -19,9 +17,5 @@ class User(Base):
     reset_token = Column(String(250), nullable=True)
 
     def __repr__(self):
-        hp = hashed_password
-        ssd = session_id
-        rt = reset_token
-        details = "<User(id='%d', email='%s', hp='%s', ssd='%s', rt='%s')>"
-        db_det = self.id, self.email, self.hp, self.ssd, self.rt
-        return details % (db_det)
+        "an instance"
+        return f"User: id={self.id}"
