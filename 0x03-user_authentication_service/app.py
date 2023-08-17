@@ -48,7 +48,7 @@ def login() -> str:
 def logout() -> str:
     """DELETE /sessions
     return message"""
-    session_id = request.cookies.get('session_id')
+    session_id = request.cookies.get('session_id', None)
     user = AUTH.get_user_from_session_id(session_id)
     if user:
         AUTH.destroy_session(user.id)
