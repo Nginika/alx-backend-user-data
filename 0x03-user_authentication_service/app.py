@@ -1,69 +1,53 @@
 #!/usr/bin/env python3
-"""
-Flask app
-"""
-from flask import (
-    Flask,
-    request,
-    jsonify,
-    abort,
-    redirect,
-    url_for
-)
-
+"""flask app and routes"""
+from flask import Flask, jsonify, request, abort, redirect, url_for
 from auth import Auth
+
 
 app = Flask(__name__)
 AUTH = Auth()
 
 
-@app.route("/", methods=["GET"], strict_slashes=False)
-def index() -> str:
-    """
-    Return json respomse
-    {"message": "Bienvenue"}
-    """
-    return jsonify({"message": "Bienvenue"})
+@app.route('/', methods=['GET'], strict_slashes=False)
+def payload() -> str:
+    """return a json payload"""
+    return jsonify({"message": "Bienvenue"}), 200
 
 
-@app.route("/users", methods=["POST"], strict_slashes=False)
+@app.route('/users', methods=['POST'], strict_slashes=False)
 def users() -> str:
-    """
-    Register new users
-    """
-    email = request.form.get("email")
-    password = request.form.get("password")
+    """POST /users
+    return:
+    {"email": "<registered email>", "message": "user created"} or
+    {"message": "email already registered"}"""
+    email = request.form.get('email')
+    password = request.form.get('password')
     try:
-        user = AUTH.register_user(email, password)
-    except ValueError:
+        AUTH.register_user(email, password)
+        return jsonify({"email": f"{email}", "message": "user created"}), 200
+    except Exception:
         return jsonify({"message": "email already registered"}), 400
 
-    return jsonify({"email": f"{email}", "message": "user created"})
 
-
-@app.route("/sessions", methods=["POST"], strict_slashes=False)
+@app.route('/sessions', methods=['POST'], strict_slashes=False)
 def login() -> str:
-    """
-    Log in a user if the credentials provided are correct, and create a new
-    session for them.
-    """
-    email = request.form.get("email")
-    password = request.form.get("password")
-
-    if not AUTH.valid_login(email, password):
+    """POST /session
+    respond with a 401 HTTP status or
+    {"email": "<user email>", "message": "logged in"}"""
+    email = request.form.get('email')
+    password = request.form.get('password')
+    if AUTH.valid_login(email, password):
+        res = jsonify({"email": f"{email}", "message": "logged in"})
+        res.set_cookie('session_id', AUTH.create_session(email))
+        return res
+    else:
         abort(401)
 
-    session_id = AUTH.create_session(email)
-    resp = jsonify({"email": f"{email}", "message": "logged in"})
-    resp.set_cookie("session_id", session_id)
-    return resp
 
-
-@app.route("/sessions", methods=["DELETE"], strict_slashes=False)
-def logout():
-    """
-    Log out a logged in user and destroy their session
-    """
+@app.route('/sessions', methods=['DELETE'], strict_slashes=False)
+def logout() -> str:
+    """DELETE /sessions
+    return message"""
     session_id = request.cookies.get("session_id", None)
     user = AUTH.get_user_from_session_id(session_id)
     if user is None or session_id is None:
