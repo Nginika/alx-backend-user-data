@@ -72,3 +72,12 @@ class DB:
             return self._session.query(User).filter_by(**kwargs).one()
         except Exception:
             raise NoResultFound
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """updates user details in database"""
+        user = self.find_user_by(id=user_id)
+        for i, j in kwargs.items():
+            if i not in VALID:
+                raise ValueError
+            setattr(user, i, j)
+        self._session.commit()
